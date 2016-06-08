@@ -5,6 +5,9 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Description:
@@ -23,6 +26,7 @@ public class FirstServlet extends HttpServlet
 {
 	File file=new File("F:/hh11.txt");
 	 FileOutputStream filout;
+	HashMap<String,String> usertable=new HashMap<String,String>();
 	
 	public void FirstServlet() throws ServletException{ 
 		 //super();
@@ -40,6 +44,7 @@ public class FirstServlet extends HttpServlet
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		usertable.put("admin", "admin");
 		}
 		// 客户端的响应方法，使用该方法可以响应客户端所有类型的请求
 	public void service(HttpServletRequest request,
@@ -50,25 +55,69 @@ public class FirstServlet extends HttpServlet
 		request.setCharacterEncoding("GBK");
 		response.setContentType("text/html;charSet=GBK");
 		// 获取name的请求参数值
-		String name = request.getParameter("name");
-		// 获取gender的请求参数值
+	    response.reset();  
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charSet=UTF-8");  
+        response.setHeader("Content-Disposition", "attachment; filename=\"");
+		String commend = request.getParameter("commond");
+		// 获取gender的请求参数
+		if(commend.equals("regest")){
 		
-		PrintStream out = new PrintStream(response.getOutputStream());
-		//输出HTML页面标签
-		 
-       
-		byte[] bb=request.getParameter("name").getBytes();
-		filout.write(bb);
-		out.println("<html>");
-		out.println("<head>");
-		out.println("<title>Servlet测试</title>");
-		out.println("</head>");
-		out.println("<body>");
-		// 输出请求参数的值：name
-		out.println("您的名字：" + name + "<hr/>");
-		// 输出请求参数的值：gender
+			Iterator iter = usertable.entrySet().iterator();
+			 PrintWriter pp=response.getWriter();
+			String logname=null;
+			String logpassword=null;
+			boolean userid_flag=false;
+			String kkk=null;
+			while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			 logname = (String) entry.getKey();
+			if(request.getParameter("regestname").equals(logname)){
+				userid_flag=true;
+				System.out.println("发现重名");
+			 break;}
+			}
+			if(userid_flag){
+				kkk="1";
+			}
+			else
+			{
+				usertable.put(request.getParameter("regestname"),request.getParameter("regestpassword"));
+				kkk="0";
+				System.out.println("注册成功");
+			}
+			pp.print(kkk);
+			pp.flush();
+			System.out.println("注册");
+		}
+		else if(commend.equals("login")){
+			Iterator iter = usertable.entrySet().iterator();
+			String logname=null;
+			String logpassword=null;
+			while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			 logname = (String) entry.getKey();
+			if((request.getParameter("username").equals(logname))){
+			 logpassword = (String) entry.getValue();
+			 break;}
+			}
+			String kkk=null;
+			 PrintWriter pp=response.getWriter();
+			if((request.getParameter("password").equals(logpassword)))
+			kkk="0";
+			else{
+			 kkk="1";
+			}
+			pp.print(kkk);
+			pp.flush();
+			System.out.println("登录");
+		}
+		else{
+			System.out.println("未知请求");
+			
+		}
+		//byte[] bb=request.getParameter("name").getBytes();
+		//filout.write(bb);
 
-		out.println("</body>");
-		out.println("</html>");
 	}
 }
